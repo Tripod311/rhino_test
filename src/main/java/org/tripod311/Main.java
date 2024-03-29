@@ -1,5 +1,6 @@
 package org.tripod311;
 
+import java.io.FileReader;
 import java.util.Scanner;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.RhinoException;
@@ -51,7 +52,25 @@ public class Main {
         }
 
         /*
-            А тут я просто жду ввода от пользователя и исполняю каждую строку. У Intellij ублюдская консоль, надеюсь ты
+            Здесь я показываю как выполнить скрипт из файла.
+            Сделай файл, укажи правильный путь и все заработает
+        */
+        String path_to_script = "/home/tripod/projects/testScript.js";
+        try {
+            FileReader reader = new FileReader(path_to_script);
+            ctx.evaluateReader(
+                    scope,
+                    reader,
+                    path_to_script,
+                    1,
+                    null
+            );
+        } catch (final Exception e) {
+            System.out.println(e);
+        }
+
+        /*
+            А тут я просто жду ввода от пользователя и исполняю каждую строку. У IntelliJ ублюдская консоль, надеюсь ты
             разберешься как ей пользоваться).
             Исполняю, пока в пространстве имен не появится переменная с именем EXIT. Чтобы закончить исполнение - напиши
             строку:
