@@ -6,7 +6,7 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.RhinoException;
 import org.mozilla.javascript.Scriptable;
 
-public class Main {
+public class Main_old {
     public static void main(String[] args) {
         /*
             Здесь все начинается.
@@ -23,7 +23,8 @@ public class Main {
         /*
             За разъяснениями следующей строки иди в файл ExternalFunctions.java
         */
-        ExternalFunctions.putIntoScope(scope);
+        ExternalFunctions.putIntoScope(scope, "/home/tripod/projects/testJS/");
+        Asynchronous.putIntoScope(scope);
 
         /*
             Здесь я просто показываю как вызвать функцию руками из кода. Так тебе скорее всего не надо будет делать,

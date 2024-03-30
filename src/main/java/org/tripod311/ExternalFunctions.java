@@ -1,10 +1,13 @@
 package org.tripod311;
 
-import org.mozilla.javascript.FunctionObject;
-import org.mozilla.javascript.Scriptable;
-import org.mozilla.javascript.ScriptableObject;
+import org.mozilla.javascript.*;
 
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.lang.reflect.Method;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -23,6 +26,14 @@ import java.util.Date;
 
 public class ExternalFunctions extends ScriptableObject {
     public static DateFormat DEFAULT_DATE_FORMAT = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+    /*
+        Новое тут. Это путь до корневой директории со скриптами. Зачем это нужно смотри в import_file здесь же
+    * */
+    private final Path rootDir;
+
+    public ExternalFunctions (String rootDir) {
+        this.rootDir = Paths.get(rootDir).toAbsolutePath();
+    }
 
     /*
     Метод getClassName просто надо было переопределить. Забей и повторяй, тут нет особой премудрости, скорее это просто
@@ -37,21 +48,23 @@ public class ExternalFunctions extends ScriptableObject {
     В статическом методе putIntoScope, этот объект создается и укладывается в пространство имен, которое ему передают.
     Расценивай putIntoScope как экзотический конструктор объекта.
     */
-    public static void putIntoScope (Scriptable scope) {
+    public static void putIntoScope (Scriptable scope, String rootDir) {
         // Создаем объект, к которому потом будем обращаться
-        ExternalFunctions ef = new ExternalFunctions();
+        ExternalFunctions ef = new ExternalFunctions(rootDir);
         // Это не обязательно, но я указываю, что у этого объекта есть объект выше уровнем
         ef.setParentScope(scope);
 
         // Это список функций, которые потом будут добавлены в объект ExternalFunctions
         // Здесь просто повторяй, я и сам не стал сильно глубоко копаться в деталях
-        ArrayList<Method> methodsToAdd = new ArrayList<Method>();
+        ArrayList<Method> methodsToAdd = new ArrayList<>();
 
         try {
             Method factorial = ExternalFunctions.class.getMethod("factorial", Integer.class);
             methodsToAdd.add(factorial);
             Method log = ExternalFunctions.class.getMethod("log", Object.class);
             methodsToAdd.add(log);
+            Method import_file = ExternalFunctions.class.getMethod("import_file", String.class);
+            methodsToAdd.add(import_file);
         } catch (NoSuchMethodException e) {
             throw new RuntimeException(e);
         }
@@ -78,5 +91,37 @@ public class ExternalFunctions extends ScriptableObject {
     public void log (Object object) {
         Date now = Calendar.getInstance().getTime();
         System.out.println("[" + ExternalFunctions.DEFAULT_DATE_FORMAT.format(now) + "] " + object.toString());
+    }
+
+    public void import_file (String path_to_file) {
+        /* Тут внимательно
+            Надо обязательно проверять, не пытаются ли вылезти за пределы допустимых границ.
+            В интерпретаторе указыватся rootDir - это корневая директория скриптов.
+            Если кто-то написал скрипт, который лезет за пределы этой директории - мы его шлем нахрен с ошибкой.
+            Остальное ты уже видел
+         */
+
+        Path fullPath = Paths.get(this.rootDir + "/" + path_to_file).toAbsolutePath();
+        if (fullPath.startsWith(this.rootDir)) {
+            try {
+                FileReader reader = new FileReader(fullPath.toString());
+                Context ctx = Context.getCurrentContext();
+                ctx.evaluateReader(
+                        this.getParentScope(),
+                        reader,
+                        fullPath.toString(),
+                        1,
+                        null
+                );
+            } catch (final FileNotFoundException e) {
+                System.out.println("Invalid path (" + path_to_file + "): file not found");
+            } catch (final IOException e) {
+                System.out.println("Invalid path (" + path_to_file + "): IOException " + e);
+            } catch (final RhinoException e) {
+                System.out.println("Script error: " + e);
+            }
+        } else {
+            System.out.println("Invalid path (" + path_to_file + "): path ends outside root script directory");
+        }
     }
 }
