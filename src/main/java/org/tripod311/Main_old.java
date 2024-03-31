@@ -24,7 +24,7 @@ public class Main_old {
             За разъяснениями следующей строки иди в файл ExternalFunctions.java
         */
         ExternalFunctions.putIntoScope(scope, "/home/tripod/projects/testJS/");
-        Asynchronous.putIntoScope(scope);
+//        Asynchronous.putIntoScope(scope);
 
         /*
             Здесь я просто показываю как вызвать функцию руками из кода. Так тебе скорее всего не надо будет делать,
