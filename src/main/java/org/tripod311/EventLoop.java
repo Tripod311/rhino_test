@@ -69,7 +69,8 @@ public class EventLoop {
         private static final int LOOP_SLEEP_DELAY = 10;
 
         private String printLoopError (Exception e) {
-            if (e instanceof RhinoException re) {
+            if (RhinoException.class.isInstance(e)) {
+                RhinoException re = (RhinoException) e;
                 return String.format(
                         "RhinoException:\n%s\nIn source %s\nOn line %d",
                         re.getMessage(),
