@@ -29,7 +29,10 @@ public class Main_new {
             if (script.equals("exit")) {
                 exit = true;
             } else {
+//                long startTime = System.nanoTime();
                 i.executeString(script);
+//                long endTime = System.nanoTime();
+//                System.out.println("Evaluation time: " + (endTime - startTime)/1000000);
             }
         }
 

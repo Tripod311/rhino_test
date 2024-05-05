@@ -65,6 +65,8 @@ public class ExternalFunctions extends ScriptableObject {
             methodsToAdd.add(log);
             Method import_file = ExternalFunctions.class.getMethod("import_file", String.class);
             methodsToAdd.add(import_file);
+            Method passArray = ExternalFunctions.class.getMethod("passArray", NativeArray.class);
+            methodsToAdd.add(passArray);
         } catch (NoSuchMethodException e) {
             throw new RuntimeException(e);
         }
@@ -123,5 +125,11 @@ public class ExternalFunctions extends ScriptableObject {
         } else {
             System.out.println("Invalid path (" + path_to_file + "): path ends outside root script directory");
         }
+    }
+
+    public void passArray (NativeArray arr) {
+        System.out.println("Received array " + arr.size());
+        System.out.println("First element is " + arr.get(0).toString());
+        System.out.println("Fourth element is " + arr.get(3).toString());
     }
 }

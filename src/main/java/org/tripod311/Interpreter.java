@@ -23,12 +23,26 @@ public class Interpreter {
     }
 
     public void executeString (String str) {
-        loop.runImmediate(() -> Context.getCurrentContext().evaluateString(
-                scope,
-                str,
-                "<cmd>",
-                1,
-                null
-        ));
+        loop.runImmediate(() -> {
+            Context.getCurrentContext().evaluateString(
+                    scope,
+                    str,
+                    "<cmd>",
+                    1,
+                    null
+            );
+        });
+    }
+
+    public void executeString (String str, String sourceName) {
+        loop.runImmediate(() -> {
+            Context.getCurrentContext().evaluateString(
+                    scope,
+                    str,
+                    sourceName,
+                    1,
+                    null
+            );
+        });
     }
 }
