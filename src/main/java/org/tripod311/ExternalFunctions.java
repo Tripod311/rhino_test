@@ -67,6 +67,8 @@ public class ExternalFunctions extends ScriptableObject {
             methodsToAdd.add(import_file);
             Method passArray = ExternalFunctions.class.getMethod("passArray", NativeArray.class);
             methodsToAdd.add(passArray);
+            Method passDouble = ExternalFunctions.class.getMethod("passDouble", Double.class);
+            methodsToAdd.add(passDouble);
         } catch (NoSuchMethodException e) {
             throw new RuntimeException(e);
         }
@@ -131,5 +133,9 @@ public class ExternalFunctions extends ScriptableObject {
         System.out.println("Received array " + arr.size());
         System.out.println("First element is " + arr.get(0).toString());
         System.out.println("Fourth element is " + arr.get(3).toString());
+    }
+
+    public void passDouble (Double d) {
+        System.out.println("This is double: " + d.toString());
     }
 }

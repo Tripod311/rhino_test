@@ -15,6 +15,7 @@ public class Interpreter {
             scope = ctx.initStandardObjects();
             ExternalFunctions.putIntoScope(scope, rootDir);
             Asynchronous.putIntoScope(scope, loop);
+            DummyEventManager.putIntoScope(scope, loop);
         });
     }
 
