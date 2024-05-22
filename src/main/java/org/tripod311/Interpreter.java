@@ -16,6 +16,7 @@ public class Interpreter {
             ExternalFunctions.putIntoScope(scope, rootDir);
             Asynchronous.putIntoScope(scope, loop);
             DummyEventManager.putIntoScope(scope, loop);
+            DummyMobFactory.putIntoScope(scope);
         });
     }
 
