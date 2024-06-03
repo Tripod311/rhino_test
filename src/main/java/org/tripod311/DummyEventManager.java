@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class DummyEventManager extends ScriptableObject {
-    private final EventLoop loop;
     private final HashMap<String, ArrayList<BaseFunction>> handlers = new HashMap<>();
 
     @Override
@@ -15,12 +14,8 @@ public class DummyEventManager extends ScriptableObject {
         return getClass().getName();
     }
 
-    public DummyEventManager (EventLoop loop) {
-        this.loop = loop;
-    }
-
-    public static void putIntoScope (Scriptable scope, EventLoop loop) {
-        DummyEventManager em = new DummyEventManager(loop);
+    public static void putIntoScope (Scriptable scope) {
+        DummyEventManager em = new DummyEventManager();
 
         ArrayList<Method> methodsToAdd = new ArrayList<>();
 
@@ -52,7 +47,7 @@ public class DummyEventManager extends ScriptableObject {
         *   Если ты запустишь их не из loop, то получишь огромное количество невнятных багов
         *   Самый очевидный - это то что все может модифицироваться в разных потоках.
         * */
-        loop.runImmediate(() -> {
+        EventLoop.getLoopInstance().runImmediate(() -> {
             if (!handlers.containsKey(eventName)) {
                 handlers.put(eventName, new ArrayList<>());
             }
@@ -64,7 +59,7 @@ public class DummyEventManager extends ScriptableObject {
 
     public void removeEventListener (String eventName, BaseFunction handler) {
         // это чтобы убрать конкретный хендлер
-        loop.runImmediate(() -> {
+        EventLoop.getLoopInstance().runImmediate(() -> {
             if (handlers.containsKey(eventName)) {
                 if (handler == null) {
                     // если не сказали какую - удаляем все
@@ -86,7 +81,7 @@ public class DummyEventManager extends ScriptableObject {
     public void runEvent (String eventName, NativeArray eventParameters) {
         // этот метод запускает событие
         // ох, надеюсь это сработает
-        loop.runImmediate(() -> {
+        EventLoop.getLoopInstance().runImmediate(() -> {
             if (handlers.containsKey(eventName)) {
                 ArrayList<BaseFunction> arr = handlers.get(eventName);
                 Context ctx = Context.getCurrentContext();

@@ -5,27 +5,24 @@ import org.mozilla.javascript.Scriptable;
 
 
 public class Interpreter {
-    private final EventLoop loop;
     private Scriptable scope;
     public Interpreter (String rootDir) {
-        loop = new EventLoop();
-
-        loop.runImmediate(() -> {
+        EventLoop.getLoopInstance().runImmediate(() -> {
             Context ctx = Context.enter();
             scope = ctx.initStandardObjects();
             ExternalFunctions.putIntoScope(scope, rootDir);
-            Asynchronous.putIntoScope(scope, loop);
-            DummyEventManager.putIntoScope(scope, loop);
+            Asynchronous.putIntoScope(scope);
+            DummyEventManager.putIntoScope(scope);
             DummyMobFactory.putIntoScope(scope);
         });
     }
 
     public void close () {
-        loop.close();
+        EventLoop.getLoopInstance().close();
     }
 
     public void executeString (String str) {
-        loop.runImmediate(() -> {
+        EventLoop.getLoopInstance().runImmediate(() -> {
             Context.getCurrentContext().evaluateString(
                     scope,
                     str,
@@ -37,7 +34,7 @@ public class Interpreter {
     }
 
     public void executeString (String str, String sourceName) {
-        loop.runImmediate(() -> {
+        EventLoop.getLoopInstance().runImmediate(() -> {
             Context.getCurrentContext().evaluateString(
                     scope,
                     str,

@@ -69,6 +69,8 @@ public class ExternalFunctions extends ScriptableObject {
             methodsToAdd.add(passArray);
             Method passDouble = ExternalFunctions.class.getMethod("passDouble", Double.class);
             methodsToAdd.add(passDouble);
+            Method waitingFunction = ExternalFunctions.class.getMethod("waitingFunction", Double.class, BaseFunction.class);
+            methodsToAdd.add(waitingFunction);
         } catch (NoSuchMethodException e) {
             throw new RuntimeException(e);
         }
@@ -137,5 +139,48 @@ public class ExternalFunctions extends ScriptableObject {
 
     public void passDouble (Double d) {
         System.out.println("This is double: " + d.toString());
+    }
+
+    /*
+        Это пример функции, которая ожидает выполнения какой-то долгой задачи и вызывает callBack
+     */
+    public void waitingFunction (Double wTime, BaseFunction callback) {
+        /*
+            Перый параметр - это время, которое надо подождать.
+            Если бы мне надо было просто подождать время, то я бы использовал setTimeout,
+            но тут нужно сымитировать бурную деятельность, которая происходит в другом потоке.
+
+            Так, переменную timeElapsed пришлось так сделать, потому что компилятору что-то не понравилось.
+            Тебе так делать не надо, и скорее всего никогда не понадобится, потому что у тебя не ожидание, а проверки
+
+            Видимо мне все же придется что-то тебе объяснять на звонке)
+            Вот эти костыли с final массивами не стоит повторять по-хорошему. У меня просто не production код, а
+            эксперимент, поэтому я могу писать плохой код, тебе наверное надо будет куда-нибудь в другое место прятать
+            эти цифры.
+        */
+        final Double[] timeElapsed = {0.0};
+        final Integer[] intervalId = {0};
+        intervalId[0] = EventLoop.getLoopInstance().runInterval(() -> {
+            /*
+                Вот тут у тебя будет другое. По-хорошему, ты должен в своем коде использовать что-то типа
+                if (myMoveToBlockGoal.isTargetReached())
+
+                Ну и так далее. Суть ясна, я думаю, но все равно напишу.
+                Этот код будет исполняться раз в какой-то промежуток времени (Eventloop.runInterval это делает)
+                Как только выполнится условие в if, этот код будет убран из исполнения и будет вызвана функция callback
+
+                Использовать это нужно так:
+                ExternalFunctions.waitingFunction(1000, () => {
+                    ExternalFunctions.log("Task completed!");
+                });
+            * */
+
+            timeElapsed[0] += 100;
+
+            if (timeElapsed[0] >= wTime) {
+                EventLoop.getLoopInstance().resetInterval(intervalId[0]);
+                callback.call(Context.getCurrentContext(), this, this, new Object[0]);
+            }
+        }, 100);
     }
 }

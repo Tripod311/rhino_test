@@ -6,19 +6,13 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 
 public class Asynchronous extends ScriptableObject {
-    private final EventLoop loop;
-
-    public Asynchronous (EventLoop loop) {
-        this.loop = loop;
-    }
-
     @Override
     public String getClassName() {
         return getClass().getName();
     }
 
-    public static void putIntoScope(Scriptable scope, EventLoop loop) {
-        Asynchronous as = new Asynchronous(loop);
+    public static void putIntoScope(Scriptable scope) {
+        Asynchronous as = new Asynchronous();
         as.setParentScope(scope);
 
         ArrayList<Method> methodsToAdd = new ArrayList<>();
@@ -51,11 +45,11 @@ public class Asynchronous extends ScriptableObject {
             fn.call(ctx, this, this, new Object[0]);
         };
 
-        return loop.runTimeout(callback, delay);
+        return EventLoop.getLoopInstance().runTimeout(callback, delay);
     }
 
     public void clearTimeout(Integer id) {
-        loop.resetTimeout(id);
+        EventLoop.getLoopInstance().resetTimeout(id);
     }
 
     public Integer setInterval(BaseFunction fn, Integer delay) {
@@ -64,10 +58,10 @@ public class Asynchronous extends ScriptableObject {
             fn.call(ctx, this, this, new Object[0]);
         };
 
-        return loop.runInterval(callback, delay);
+        return EventLoop.getLoopInstance().runInterval(callback, delay);
     }
 
     public void clearInterval(Integer id) {
-        loop.resetInterval(id);
+        EventLoop.getLoopInstance().resetInterval(id);
     }
 }
