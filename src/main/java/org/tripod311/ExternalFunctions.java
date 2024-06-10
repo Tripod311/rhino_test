@@ -2,10 +2,9 @@ package org.tripod311;
 
 import org.mozilla.javascript.*;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.lang.reflect.Method;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.DateFormat;
@@ -110,7 +109,8 @@ public class ExternalFunctions extends ScriptableObject {
         Path fullPath = Paths.get(this.rootDir + "/" + path_to_file).toAbsolutePath();
         if (fullPath.startsWith(this.rootDir)) {
             try {
-                FileReader reader = new FileReader(fullPath.toString());
+                InputStreamReader reader = new InputStreamReader(new FileInputStream(fullPath.toString()), StandardCharsets.UTF_8);
+//                FileReader reader = new FileReader(fullPath.toString(), StandardCharsets.UTF_8);
                 Context ctx = Context.getCurrentContext();
                 ctx.evaluateReader(
                         this.getParentScope(),

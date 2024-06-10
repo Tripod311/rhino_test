@@ -18,7 +18,7 @@ public class Interpreter {
     }
 
     public void close () {
-        EventLoop.getLoopInstance().close();
+        EventLoop.closeLoopInstance();
     }
 
     public void executeString (String str) {
